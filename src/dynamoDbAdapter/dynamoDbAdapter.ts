@@ -27,7 +27,7 @@ export default class DynamoDbAdapter {
     return await promise
   }
 
-  async list<T>(): Promise<T[]> {
+  async scan<T>(): Promise<T[]> {
     const params = {
       TableName: this.tableName
     }
@@ -40,6 +40,28 @@ export default class DynamoDbAdapter {
         }
 
         resolve(data.Items)
+      })
+    })
+
+    return await promise
+  }
+
+  async query<T>(key: string, value: any): Promise<T[]> {
+    const params = {
+      TableName: this.tableName,
+      KeyConditionExpression: `${key} = :value`,
+      ExpressionAttributeValues: {
+        ':value': value
+      }
+    }
+
+    const promise = new Promise<T[]>((resolve: Function, reject: Function) => {
+      this.client.query(params, function (error: Error, data: any) {
+        if (error !== null) {
+          reject(error)
+        }
+
+        resolve(data?.Items)
       })
     })
 
