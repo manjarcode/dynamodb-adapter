@@ -111,10 +111,6 @@ export default class DynamoDbAdapter {
     return await Promise.resolve()
   }
 
-  private itemKeys<T extends object>(item: T): Object {
-    return {}
-  }
-
   private removeKeys<T extends object>(item: T, keys: Array<String>, removeCondition) {   
     const entries = Object.entries(item)
 
