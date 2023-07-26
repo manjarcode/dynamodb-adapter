@@ -19,7 +19,50 @@ const dynamoDbAdapter = DynamoDbAdapterFactory.create(
   TABLE, config
 )
 
-dynamoDbAdapter.list().then((results) => {
-  console.log('list', results)
+const itemId = '40c6bac9-2b9e-49c9-9ea2-fafc885e6302'
+
+const item = {
+  id: itemId,
+  name: 'Electricity',
+  description: '2023 May Electricity Bill',
+  amount: 100,
+  date: '2023-05-01',
+}
+
+// CREATE
+dynamoDbAdapter.add(item).then(() => {
+  console.log('created successfully')
 })
+
+//QUERY
+dynamoDbAdapter.query('id', itemId).then((results) => {
+  console.log('query:', results)
+})
+
+// SCAN
+dynamoDbAdapter.scan().then((results) => {
+  console.log('scan', results)
+})
+
+
+// UPDATE
+const item = {
+  id: itemId,
+  name: 'Electricity',
+  description: '2023 May Electricity Bill',
+  amount: 100,
+  date: '2023-05-01',
+}
+
+dynamoDbAdapter.update(item).then(() => {
+  console.log('updated successfully')
+})
+
+
+// DELETE
+
+dynamoDbAdapter.delete(itemId).then(() => {
+  console.log('deleted successfully')
+}
+
 ```

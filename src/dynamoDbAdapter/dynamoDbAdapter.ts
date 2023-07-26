@@ -10,7 +10,7 @@ export default class DynamoDbAdapter {
     this.tableName = tableName
   }
 
-  async add (item: any): Promise<void> {
+  async add<T extends Object>(item: T): Promise<void> {
     const params = {
       Item: {
         ...item
@@ -83,16 +83,20 @@ export default class DynamoDbAdapter {
     return await promise
   }
 
-  async update<T extends Entity>(item: T): Promise<void> {
-    const { id } = item
+  async update<T extends Entity>(item: T, partitionKey: string = 'id', sortKey: string): Promise<void> {
+    const keys = [partitionKey, sortKey]
+    const keysContent = this.removeKeys(item, keys, key => !keys.includes(key))
+    const itemContent = this.removeKeys(item, keys, key => keys.includes(key))
 
-    const updateExpression = this.updateExpression(item)
-    const expressionAttributesNames = this.expressionAttributeNames(item)
-    const expressionAttributeValues = this.expressionAttributeValues(item)
+    const updateExpression = this.updateExpression(itemContent)
+
+    const expressionAttributesNames = this.expressionAttributeNames(itemContent)
+
+    const expressionAttributeValues = this.expressionAttributeValues(itemContent)
 
     const params = {
       TableName: this.tableName,
-      Key: { id },
+      Key: { ...keysContent },
       UpdateExpression: updateExpression,
       ExpressionAttributeNames: expressionAttributesNames,
       ExpressionAttributeValues: expressionAttributeValues
@@ -104,17 +108,34 @@ export default class DynamoDbAdapter {
       })
     })
 
-    return await promise
+    return await Promise.resolve()
+  }
+
+  private itemKeys<T extends object>(item: T): Object {
+    return {}
+  }
+
+  private removeKeys<T extends object>(item: T, keys: Array<String>, removeCondition) {   
+    const entries = Object.entries(item)
+
+    const removedKeys = entries
+      .map(([key, value]) => {
+        const shouldRemove = removeCondition(key)
+        return shouldRemove ? null : [key, value]
+      })
+      .filter(Boolean) as Array<[string, any]>
+    
+    const assambleObj = Object.fromEntries(removedKeys)
+
+    return assambleObj
   }
 
   private isReservedKeyword (key: string): boolean {
     return reservedKeywords.includes(key.toUpperCase())
   }
 
-  private updateExpression<T extends Entity>(item: T): string {
-    const { id, ...props } = item
-
-    const keys = Object.keys(props)
+  private updateExpression<T extends Object>(itemContent: T): string {
+    const keys = Object.keys(itemContent)
 
     const queryWithExtraComma = keys.reduce((acc, key) => {
       const sharpedKey = this.isReservedKeyword(key) ? `#${key}` : key
@@ -127,10 +148,8 @@ export default class DynamoDbAdapter {
     return query
   }
 
-  private expressionAttributeNames<T extends Entity>(item: T): any {
-    const { id, ...props } = item
-
-    const keys = Object.keys(props)
+  private expressionAttributeNames<T extends Object>(itemContent: T): any {
+    const keys = Object.keys(itemContent)
 
     const reservedKeys = keys.filter(key => this.isReservedKeyword(key))
 
@@ -143,10 +162,8 @@ export default class DynamoDbAdapter {
     return result
   }
 
-  private expressionAttributeValues<T extends Entity>(item: T): any {
-    const { id, ...props } = item
-
-    const entries = Object.entries(props)
+  private expressionAttributeValues<T extends Object>(itemContent: T): any {
+    const entries = Object.entries(itemContent)
 
     const attributeValues = entries.reduce((obj, [key, value]) => {
       const dottedKey = `:${key}`
