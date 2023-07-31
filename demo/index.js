@@ -25,12 +25,11 @@ dynamoDbAdapter.query("id", "40c6bac9-2b9e-49c9-9ea2-fafc885e6302").then((result
 })
 
 const item = {
-  reportId: "5ceacdbf-dc70-4ff8-939f-a0331debaf71",
-  line: 0,
-  amount:-16.6,
+  reportId: "21c9f232-52d2-4594-8884-5f96473583f4",
+  date: 1682978400000,
+  amount: -16.6,
   description: "Pago en GROUCHOS MADRID ES",
   category: "Alimentación",
-  subcategory: "Supermercados",
-  read: true
 }
-dynamoDbAdapter.update(item, "reportId", "line")
+
+dynamoDbAdapter.update(item, "reportId", "date")

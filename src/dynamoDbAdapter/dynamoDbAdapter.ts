@@ -98,17 +98,23 @@ export default class DynamoDbAdapter {
       TableName: this.tableName,
       Key: { ...keysContent },
       UpdateExpression: updateExpression,
-      ExpressionAttributeNames: expressionAttributesNames,
       ExpressionAttributeValues: expressionAttributeValues
     }
 
+    const hasExpressionAttributeNames = Object.keys(expressionAttributesNames).length > 0
+
+    if (hasExpressionAttributeNames) {
+      params['ExpressionAttributeNames'] = expressionAttributesNames
+    }
+
+    console.log (params)
     const promise = new Promise<void>((resolve: Function, reject: Function) => {
       this.client.update(params, function (error) {
         error === null ? resolve() : reject(error)
       })
     })
 
-    return await Promise.resolve()
+    return promise
   }
 
   private removeKeys<T extends object>(item: T, keys: Array<String>, removeCondition) {   
