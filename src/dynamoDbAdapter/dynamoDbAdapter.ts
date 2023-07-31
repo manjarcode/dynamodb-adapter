@@ -4,10 +4,12 @@ import {Entity} from '../types.js'
 export default class DynamoDbAdapter {
   private readonly tableName: string
   private readonly client: AWS.DynamoDB.DocumentClient
+  private readonly keys: Array<string>
 
-  constructor (tableName: string, documentClient: AWS.DynamoDB.DocumentClient ) {
+  constructor (tableName: string, documentClient: AWS.DynamoDB.DocumentClient, partitionKey: string = 'id', sortKey: string = '') {
     this.client = documentClient
     this.tableName = tableName
+    this.keys = [partitionKey, sortKey]
   }
 
   async add<T extends Object>(item: T): Promise<void> {
@@ -83,10 +85,9 @@ export default class DynamoDbAdapter {
     return await promise
   }
 
-  async update<T extends Entity>(item: T, partitionKey: string = 'id', sortKey: string): Promise<void> {
-    const keys = [partitionKey, sortKey]
-    const keysContent = this.removeKeys(item, keys, key => !keys.includes(key))
-    const itemContent = this.removeKeys(item, keys, key => keys.includes(key))
+  async update<T extends Entity>(item: T): Promise<void> {
+    const keysContent = this.removeKeys(item, key => !this.keys.includes(key))
+    const itemContent = this.removeKeys(item, key => this.keys.includes(key))
 
     const updateExpression = this.updateExpression(itemContent)
 
@@ -107,7 +108,7 @@ export default class DynamoDbAdapter {
       params['ExpressionAttributeNames'] = expressionAttributesNames
     }
 
-    console.log (params)
+    console.log('params', params)
     const promise = new Promise<void>((resolve: Function, reject: Function) => {
       this.client.update(params, function (error) {
         error === null ? resolve() : reject(error)
@@ -117,7 +118,7 @@ export default class DynamoDbAdapter {
     return promise
   }
 
-  private removeKeys<T extends object>(item: T, keys: Array<String>, removeCondition) {   
+  private removeKeys<T extends object>(item: T, removeCondition) {   
     const entries = Object.entries(item)
 
     const removedKeys = entries
