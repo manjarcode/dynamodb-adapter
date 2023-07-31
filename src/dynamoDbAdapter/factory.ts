@@ -3,12 +3,19 @@ import { AwsConfig } from "../types"
 import DynamoDbAdapter from "./dynamoDbAdapter.js"
 
 export default class DynamoDbAdapterFactory {
-  static create(tableName: string, config?: AwsConfig) : DynamoDbAdapter
-  {
+  static create(
+    tableName: string, 
+    config?: AwsConfig, 
+    partitionKey?: string, 
+    sortKey?: string
+  ) : DynamoDbAdapter {
     const dynamoDbAdapter =  new DynamoDbAdapter(
       tableName,       
-      DocumentClientFactory.create(config))    
+      DocumentClientFactory.create(config),
+      partitionKey,
+      sortKey
+    )
 
-    return dynamoDbAdapter
+    return dynamoDbAdapter  
   }
 }
