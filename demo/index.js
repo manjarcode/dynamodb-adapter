@@ -17,14 +17,14 @@ const partitionKey = 'reportId'
 const sortKey = 'date'
 
 const dynamoDbAdapter = DynamoDbAdapterFactory.create(
-  TABLE, config, partitionKey, sortKey
+  TABLE, partitionKey, sortKey, config
 )
 
 dynamoDbAdapter.scan().then((results) => {
   console.log('scan:', results)
 })
 
-dynamoDbAdapter.query('id', '40c6bac9-2b9e-49c9-9ea2-fafc885e6302').then((results) => {
+dynamoDbAdapter.query('21c9f232-52d2-4594-8884-5f96473583f4').then((results) => {
   console.log('query:', results)
 })
 

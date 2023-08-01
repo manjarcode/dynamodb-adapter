@@ -4,16 +4,16 @@ import DynamoDbAdapter from "./dynamoDbAdapter.js"
 
 export default class DynamoDbAdapterFactory {
   static create(
-    tableName: string, 
-    config?: AwsConfig, 
-    partitionKey?: string, 
-    sortKey?: string
+    tableName: string,
+    partitionKey: string,
+    sortKey: string,
+    config?: AwsConfig
   ) : DynamoDbAdapter {
     const dynamoDbAdapter =  new DynamoDbAdapter(
       tableName,       
-      DocumentClientFactory.create(config),
       partitionKey,
-      sortKey
+      sortKey,
+      DocumentClientFactory.create(config)
     )
 
     return dynamoDbAdapter  

@@ -4,12 +4,22 @@ import {Entity} from '../types.js'
 export default class DynamoDbAdapter {
   private readonly tableName: string
   private readonly client: AWS.DynamoDB.DocumentClient
+  private readonly partitionKey: string
+  private readonly sortKey: string
   private readonly keys: Array<string>
+  private readonly hasSortKey: boolean
 
-  constructor (tableName: string, documentClient: AWS.DynamoDB.DocumentClient, partitionKey: string = 'id', sortKey: string = '') {
+  constructor (tableName: string,
+    partitionKey: string, 
+    sortKey: string = '',
+    documentClient: AWS.DynamoDB.DocumentClient
+  ) {
     this.client = documentClient
     this.tableName = tableName
+    this.partitionKey = partitionKey
+    this.sortKey = sortKey
     this.keys = [partitionKey, sortKey]
+    this.hasSortKey = this.sortKey !== ''
   }
 
   async add<T extends Object>(item: T): Promise<void> {
@@ -48,13 +58,11 @@ export default class DynamoDbAdapter {
     return await promise
   }
 
-  async query<T>(key: string, value: any): Promise<T[]> {
+  async query<T>(partitionValue: string, sortValue?: string): Promise<T[]> {
     const params = {
       TableName: this.tableName,
-      KeyConditionExpression: `${key} = :value`,
-      ExpressionAttributeValues: {
-        ':value': value
-      }
+      KeyConditionExpression: this.queryKeyConditionExpression(sortValue),
+      ExpressionAttributeValues: this.queryExpressionAttributeValues(partitionValue, sortValue)
     }
 
     const promise = new Promise<T[]>((resolve: Function, reject: Function) => {
@@ -68,6 +76,30 @@ export default class DynamoDbAdapter {
     })
 
     return await promise
+  }
+
+  private queryKeyConditionExpression(sortValue?: string): string {
+    const hasSortValue = this.hasSortKey && sortValue !== undefined
+
+    let result = `${this.partitionKey} = :partitionValue`
+    
+    if (hasSortValue) {
+      result = result.concat(` AND ${this.sortKey} = :sortValue`)
+    }
+
+    return result
+  }
+
+  private queryExpressionAttributeValues(partitionValue: string, sortValue?: string) : Object {
+    const hasSortValue = this.hasSortKey && sortValue !== undefined
+    const expressionAttributeValues = {
+      ':partitionValue': partitionValue
+    }
+    if (hasSortValue) {
+      expressionAttributeValues[':sortValue'] = sortValue
+    }
+
+    return expressionAttributeValues
   }
 
   async delete (id: string): Promise<void> {
@@ -108,7 +140,6 @@ export default class DynamoDbAdapter {
       params['ExpressionAttributeNames'] = expressionAttributesNames
     }
 
-    console.log('params', params)
     const promise = new Promise<void>((resolve: Function, reject: Function) => {
       this.client.update(params, function (error) {
         error === null ? resolve() : reject(error)
