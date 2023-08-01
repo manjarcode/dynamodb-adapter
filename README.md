@@ -14,10 +14,9 @@ const config = {
   secretAccessKey: 'YOUR SECRET ACCESS KEY GOES HERE',  
   region: 'YOUR REGION GOES HERE',
 }
-const partitionKey = 'partitionKey'
-const sortKey = 'sortKey'
+
 const dynamoDbAdapter = DynamoDbAdapterFactory.create(
-  TABLE, config, partitionKey, sortKey
+  TABLE, config
 )
 
 const itemId = '40c6bac9-2b9e-49c9-9ea2-fafc885e6302'
@@ -61,6 +60,7 @@ dynamoDbAdapter.update(item).then(() => {
 
 
 // DELETE
+
 dynamoDbAdapter.delete(itemId).then(() => {
   console.log('deleted successfully')
 }
