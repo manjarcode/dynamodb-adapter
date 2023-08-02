@@ -20,6 +20,11 @@ export default class DynamoDbAdapter {
     this.sortKey = sortKey
     this.keys = [partitionKey, sortKey]
     this.hasSortKey = this.sortKey !== ''
+
+
+    console.log('partitionKey', this.partitionKey)
+    console.log('sortKey', this.sortKey)
+    console.log('keys', this.keys)
   }
 
   async add<T extends Object>(item: T): Promise<void> {
@@ -59,12 +64,18 @@ export default class DynamoDbAdapter {
   }
 
   async query<T>(partitionValue: string, sortValue?: string): Promise<T[]> {
+    
+    console.log('holis')
+    console.log('sortValue', sortValue)
+    
+
     const params = {
       TableName: this.tableName,
       KeyConditionExpression: this.queryKeyConditionExpression(sortValue),
       ExpressionAttributeValues: this.queryExpressionAttributeValues(partitionValue, sortValue)
     }
 
+    console.log(params)
     const promise = new Promise<T[]>((resolve: Function, reject: Function) => {
       this.client.query(params, function (error: Error, data: any) {
         if (error !== null) {
@@ -74,13 +85,13 @@ export default class DynamoDbAdapter {
         resolve(data?.Items)
       })
     })
-
+    
     return await promise
   }
 
   private queryKeyConditionExpression(sortValue?: string): string {
     const hasSortValue = this.hasSortKey && sortValue !== undefined
-
+    console.log('partitionkey ', this.partitionKey)
     let result = `${this.partitionKey} = :partitionValue`
     
     if (hasSortValue) {
