@@ -1,5 +1,5 @@
 import { reservedKeywords } from '../utils/constants.js'
-import {Entity} from '../types.js'
+import {Entity, FilterExpression, FilterExpressionOperator} from '../types.js'
 
 export default class DynamoDbAdapter {
   private readonly tableName: string
@@ -58,13 +58,20 @@ export default class DynamoDbAdapter {
     return await promise
   }
 
-  async query<T>(partitionValue: string, sortValue?: string): Promise<T[]> {
+  
+  async query<T>(partitionValue: string, sortValue?: string, filter?: FilterExpression): Promise<T[]> {
     const params = {
       TableName: this.tableName,
       KeyConditionExpression: this.queryKeyConditionExpression(sortValue),
-      ExpressionAttributeValues: this.queryExpressionAttributeValues(partitionValue, sortValue)
+      ExpressionAttributeValues: this.queryExpressionAttributeValues(partitionValue, sortValue),
     }
 
+    if (filter) {
+      const {filterExpression, expressionAttributeNames} = this.filterExpression(filter)
+      params['FilterExpression'] = filterExpression
+      params['ExpressionAttributeNames'] = expressionAttributeNames      
+    }
+     
     const promise = new Promise<T[]>((resolve: Function, reject: Function) => {
       this.client.query(params, function (error: Error, data: any) {
         if (error !== null) {
@@ -78,8 +85,24 @@ export default class DynamoDbAdapter {
     return await promise
   }
 
+  private filterExpression(filter: FilterExpression) : {filterExpression: string, expressionAttributeNames: Object} {
+    const {operator: operand, attribute: key, value} = filter
+
+    let filterExpression = ''
+    if (operand === FilterExpressionOperator.Exists) {
+      filterExpression = `attribute_exists(#${key})`
+    }
+
+    const expressionAttributeNames = {
+      [`#${key}`]: key
+    }
+
+    return {filterExpression, expressionAttributeNames}
+  }
+  
+
   private queryKeyConditionExpression(sortValue?: string): string {
-    const hasSortValue = this.hasSortKey && sortValue !== undefined
+    const hasSortValue = this.hasSortKey && Boolean(sortValue)
     let result = `${this.partitionKey} = :partitionValue`
     
     if (hasSortValue) {
@@ -90,7 +113,7 @@ export default class DynamoDbAdapter {
   }
 
   private queryExpressionAttributeValues(partitionValue: string, sortValue?: string) : Object {
-    const hasSortValue = this.hasSortKey && sortValue !== undefined
+    const hasSortValue = this.hasSortKey && Boolean(sortValue)
     const expressionAttributeValues = {
       ':partitionValue': partitionValue
     }
