@@ -14,9 +14,6 @@ export default class DynamoDbAdapter {
   ) {
     this.tableConfig = tableConfig
     this.client = documentClient
-
-    //TODO REMOVE FROM HERE TO FACTORY
-    const expressionBuilder = new ExpressionBuilder(this.tableConfig)
     this.queryParamBuilder = queryBuilder
   }
 
