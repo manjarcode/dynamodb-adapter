@@ -1,5 +1,5 @@
-import { reservedKeywords } from '../utils/constants.js'
-import {Entity, FilterExpression, FilterExpressionOperator} from '../types.js'
+import { reservedKeywords } from '../utils/constants'
+import {Entity, FilterExpression, FilterExpressionOperator} from '../types'
 
 export default class DynamoDbAdapter {
   private readonly tableName: string

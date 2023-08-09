@@ -1,6 +1,6 @@
-import DocumentClientFactory from "../documentClient/factory.js"
+import DocumentClientFactory from "../documentClient/factory"
 import { AwsConfig } from "../types"
-import DynamoDbAdapter from "./dynamoDbAdapter.js"
+import DynamoDbAdapter from "./dynamoDbAdapter"
 
 export default class DynamoDbAdapterFactory {
   static create(
