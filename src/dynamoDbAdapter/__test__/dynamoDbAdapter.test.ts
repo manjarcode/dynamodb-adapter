@@ -1,7 +1,8 @@
 import {describe, expect, test, jest} from '@jest/globals'
 
 import DynamoDbAdapter from '../dynamoDbAdapter'
-import { FilterExpressionOperator } from '../../types'
+import { FilterExpressionOperator, TableConfig } from '../../types'
+import { QueryParamBuilderFactory } from '../factory'
 
 describe('DynamoDbAdapter', () => {
   const setup = () => {
@@ -9,10 +10,14 @@ describe('DynamoDbAdapter', () => {
       query: jest.fn()
     }
 
-    const tableName = 'tablename'
-    const partitionKey = 'partitionkey'
-    const sortKey = 'sortkey'
-    const dynamoDbAdapter = new DynamoDbAdapter(tableName, partitionKey, sortKey, clientMock as any)
+    const tableConfig = {
+      tableName: 'tablename',
+      partitionKey: 'partitionkey',
+      sortKey: 'sortkey'
+    } as TableConfig
+    
+    const queryBuilder = QueryParamBuilderFactory.create(tableConfig)
+    const dynamoDbAdapter = new DynamoDbAdapter(tableConfig, clientMock as any, queryBuilder)
 
     return {dynamoDbAdapter, clientMock}
   }

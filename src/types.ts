@@ -8,6 +8,12 @@ export interface AwsConfig {
   region: string
 }
 
+export interface TableConfig {
+  tableName: string
+  partitionKey: string
+  sortKey?: string
+}
+
 export enum FilterExpressionOperator {
   Exists = 'Exists',
   NotExists = 'NotExists',

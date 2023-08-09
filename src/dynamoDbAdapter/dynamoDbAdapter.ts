@@ -1,25 +1,23 @@
 import { reservedKeywords } from '../utils/constants'
-import {Entity, FilterExpression, FilterExpressionOperator} from '../types'
+import {Entity, FilterExpression, FilterExpressionOperator, TableConfig} from '../types'
+import ExpressionBuilder from './expressionBuilder'
+import QueryParamBuilder from './queryParamBuilder'
 
 export default class DynamoDbAdapter {
-  private readonly tableName: string
   private readonly client: AWS.DynamoDB.DocumentClient
-  private readonly partitionKey: string
-  private readonly sortKey: string
-  private readonly keys: Array<string>
-  private readonly hasSortKey: boolean
+  private readonly tableConfig: TableConfig
+  private readonly queryParamBuilder: QueryParamBuilder
 
-  constructor (tableName: string,
-    partitionKey: string, 
-    sortKey: string = '',
-    documentClient: AWS.DynamoDB.DocumentClient
+  constructor (tableConfig: TableConfig,
+    documentClient: AWS.DynamoDB.DocumentClient,
+    queryBuilder: QueryParamBuilder,
   ) {
+    this.tableConfig = tableConfig
     this.client = documentClient
-    this.tableName = tableName
-    this.partitionKey = partitionKey
-    this.sortKey = sortKey
-    this.keys = [partitionKey, sortKey]
-    this.hasSortKey = this.sortKey !== ''
+
+    //TODO REMOVE FROM HERE TO FACTORY
+    const expressionBuilder = new ExpressionBuilder(this.tableConfig)
+    this.queryParamBuilder = queryBuilder
   }
 
   async add<T extends Object>(item: T): Promise<void> {
@@ -27,7 +25,7 @@ export default class DynamoDbAdapter {
       Item: {
         ...item
       },
-      TableName: this.tableName
+      TableName: this.tableConfig.tableName
     }
 
     const promise = new Promise<void>((resolve: Function, reject: Function) => {
@@ -41,7 +39,7 @@ export default class DynamoDbAdapter {
 
   async scan<T>(): Promise<T[]> {
     const params = {
-      TableName: this.tableName
+      TableName: this.tableConfig.tableName
     }
 
     const promise = new Promise<T[]>((resolve: Function, reject: Function) => {
@@ -60,18 +58,8 @@ export default class DynamoDbAdapter {
 
   
   async query<T>(partitionValue: string, sortValue?: string, filter?: FilterExpression): Promise<T[]> {
-    const params = {
-      TableName: this.tableName,
-      KeyConditionExpression: this.queryKeyConditionExpression(sortValue),
-      ExpressionAttributeValues: this.queryExpressionAttributeValues(partitionValue, sortValue),
-    }
+    const params = this.queryParamBuilder.build(partitionValue, sortValue, filter)
 
-    if (filter) {
-      const {filterExpression, expressionAttributeNames} = this.filterExpression(filter)
-      params['FilterExpression'] = filterExpression
-      params['ExpressionAttributeNames'] = expressionAttributeNames      
-    }
-     
     const promise = new Promise<T[]>((resolve: Function, reject: Function) => {
       this.client.query(params, function (error: Error, data: any) {
         if (error !== null) {
@@ -85,48 +73,9 @@ export default class DynamoDbAdapter {
     return await promise
   }
 
-  private filterExpression(filter: FilterExpression) : {filterExpression: string, expressionAttributeNames: Object} {
-    const {operator: operand, attribute: key, value} = filter
-
-    let filterExpression = ''
-    if (operand === FilterExpressionOperator.Exists) {
-      filterExpression = `attribute_exists(#${key})`
-    }
-
-    const expressionAttributeNames = {
-      [`#${key}`]: key
-    }
-
-    return {filterExpression, expressionAttributeNames}
-  }
-  
-
-  private queryKeyConditionExpression(sortValue?: string): string {
-    const hasSortValue = this.hasSortKey && Boolean(sortValue)
-    let result = `${this.partitionKey} = :partitionValue`
-    
-    if (hasSortValue) {
-      result = result.concat(` AND ${this.sortKey} = :sortValue`)
-    }
-
-    return result
-  }
-
-  private queryExpressionAttributeValues(partitionValue: string, sortValue?: string) : Object {
-    const hasSortValue = this.hasSortKey && Boolean(sortValue)
-    const expressionAttributeValues = {
-      ':partitionValue': partitionValue
-    }
-    if (hasSortValue) {
-      expressionAttributeValues[':sortValue'] = sortValue
-    }
-
-    return expressionAttributeValues
-  }
-
   async delete (id: string): Promise<void> {
     const params = {
-      TableName: this.tableName,
+      TableName: this.tableConfig.tableName,
       Key: { id }
     }
 
@@ -140,8 +89,9 @@ export default class DynamoDbAdapter {
   }
 
   async update<T extends Entity>(item: T): Promise<void> {
-    const keysContent = this.removeKeys(item, key => !this.keys.includes(key))
-    const itemContent = this.removeKeys(item, key => this.keys.includes(key))
+    const keys = [this.tableConfig.partitionKey, this.tableConfig.sortKey]
+    const keysContent = this.removeKeys(item, key => !keys.includes(key))
+    const itemContent = this.removeKeys(item, key => keys.includes(key))
 
     const updateExpression = this.updateExpression(itemContent)
 
@@ -150,7 +100,7 @@ export default class DynamoDbAdapter {
     const expressionAttributeValues = this.expressionAttributeValues(itemContent)
 
     const params = {
-      TableName: this.tableName,
+      TableName: this.tableConfig.tableName,
       Key: { ...keysContent },
       UpdateExpression: updateExpression,
       ExpressionAttributeValues: expressionAttributeValues

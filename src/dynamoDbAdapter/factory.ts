@@ -1,6 +1,8 @@
 import DocumentClientFactory from "../documentClient/factory"
-import { AwsConfig } from "../types"
+import { AwsConfig, TableConfig } from "../types"
 import DynamoDbAdapter from "./dynamoDbAdapter"
+import ExpressionBuilder from "./expressionBuilder"
+import QueryParamBuilder from "./queryParamBuilder"
 
 export default class DynamoDbAdapterFactory {
   static create(
@@ -9,13 +11,34 @@ export default class DynamoDbAdapterFactory {
     sortKey: string,
     config?: AwsConfig
   ) : DynamoDbAdapter {
+
+    const tableConfig = {tableName, partitionKey, sortKey} as TableConfig
+
     const dynamoDbAdapter =  new DynamoDbAdapter(
-      tableName,       
-      partitionKey,
-      sortKey,
-      DocumentClientFactory.create(config)
+      tableConfig,
+      DocumentClientFactory.create(config),
+      QueryParamBuilderFactory.create(tableConfig)
     )
 
-    return dynamoDbAdapter  
+    return dynamoDbAdapter
+  }
+}
+
+export class ExpressionBuilderFactory {
+  static create(
+    tableConfig: TableConfig
+  ) : ExpressionBuilder {
+    return new ExpressionBuilder(tableConfig)
+  }
+}
+
+export class QueryParamBuilderFactory {
+  static create(
+    tableConfig: TableConfig
+  ) : QueryParamBuilder {
+    return new QueryParamBuilder(
+      tableConfig, 
+      ExpressionBuilderFactory.create(tableConfig)
+    )
   }
 }
