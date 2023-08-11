@@ -1,8 +1,8 @@
-import DocumentClientFactory from "../documentClient/factory"
-import { AwsConfig, TableConfig } from "../types"
-import DynamoDbAdapter from "./dynamoDbAdapter"
-import ExpressionBuilder from "./expressionBuilder"
-import QueryParamBuilder from "./queryParamBuilder"
+import DocumentClientFactory from "../documentClient/factory.js"
+import { AwsConfig, TableConfig } from "../types.js"
+import DynamoDbAdapter from "./dynamoDbAdapter.js"
+import ExpressionBuilder from "./expressionBuilder.js"
+import QueryParamBuilder from "./queryParamBuilder.js"
 
 export default class DynamoDbAdapterFactory {
   static create(

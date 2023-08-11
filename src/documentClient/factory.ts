@@ -1,5 +1,5 @@
 import AWS from 'aws-sdk'
-import { AwsConfig } from '../types';
+import { AwsConfig } from '../types.js';
 import process from 'process'
 
 

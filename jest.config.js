@@ -13,4 +13,8 @@ export default {
     "^.+\\.jsx?$": "babel-jest",
     "^.+\\.(ts|tsx)$": "ts-jest"
   },
+  moduleNameMapper: {
+    '(.+)\\.js': '$1'
+  },
+  extensionsToTreatAsEsm: ['.ts']
 }

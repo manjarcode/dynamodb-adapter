@@ -24,11 +24,12 @@ dynamoDbAdapter.scan().then((results) => {
   console.log('scan:', results)
 })
 
-const filterExpression = {
+const filters = [{
   attribute: 'category',
   operator: 'Exists'
 }
-dynamoDbAdapter.query('21c9f232-52d2-4594-8884-5f96473583f4', null, filterExpression).then((results) => {
+]
+dynamoDbAdapter.query('21c9f232-52d2-4594-8884-5f96473583f4', null, filters).then((results) => {
   console.log('query:', results)
 })
 

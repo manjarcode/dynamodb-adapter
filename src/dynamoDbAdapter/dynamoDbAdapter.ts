@@ -1,6 +1,6 @@
-import { reservedKeywords } from '../utils/constants'
-import {Entity, FilterExpression, TableConfig} from '../types'
-import QueryParamBuilder from './queryParamBuilder'
+import { reservedKeywords } from '../utils/constants.js'
+import {Entity, FilterExpression, TableConfig} from '../types.js'
+import QueryParamBuilder from './queryParamBuilder.js'
 
 export default class DynamoDbAdapter {
   private readonly client: AWS.DynamoDB.DocumentClient

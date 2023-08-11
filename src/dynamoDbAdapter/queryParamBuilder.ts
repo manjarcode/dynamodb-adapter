@@ -1,5 +1,5 @@
-import { TableConfig, FilterExpression } from "../types"
-import ExpressionBuilder from "./expressionBuilder"
+import { TableConfig, FilterExpression } from "../types.js"
+import ExpressionBuilder from "./expressionBuilder.js"
 
 export default class QueryParamBuilder {
   private readonly tableConfig: TableConfig
@@ -19,7 +19,7 @@ export default class QueryParamBuilder {
     }
 
     const hasFilters = Array.isArray(filters) && filters.length > 0
-
+  
     if (hasFilters) {
       const {filterExpression, expressionAttributeNames} = this.expressionBuilder.filterExpression(filters)
       params['FilterExpression'] = filterExpression

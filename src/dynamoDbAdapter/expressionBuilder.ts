@@ -1,4 +1,4 @@
-import { FilterExpression, FilterExpressionOperator, TableConfig } from "../types"
+import { FilterExpression, FilterExpressionOperator, TableConfig } from "../types.js"
 
 export default class ExpressionBuilder {
   private readonly tableConfig: TableConfig
