@@ -1,7 +1,7 @@
 import {describe, expect, test, jest} from '@jest/globals'
 
 import DynamoDbAdapter from '../dynamoDbAdapter'
-import { FilterExpressionOperator, TableConfig } from '../../types'
+import { FilterExpression, FilterExpressionOperator, TableConfig } from '../../types'
 import { QueryParamBuilderFactory } from '../factory'
 
 describe('DynamoDbAdapter', () => {
@@ -58,10 +58,14 @@ describe('DynamoDbAdapter', () => {
      )
   })
 
-  test('query with partitionvalue, sortvalue and exists filter', () => {
+  test('query with partitionvalue, sortvalue and exists filters', () => {
     const {dynamoDbAdapter, clientMock} = setup()
-    const filter = { operator: FilterExpressionOperator.Exists, attribute: 'nepe' }
-    dynamoDbAdapter.query('partitionvalue', 'sortvalue', filter as any)
+    const filters = [
+      { operator: FilterExpressionOperator.Exists, attribute: 'having_attribute' },
+      { operator: FilterExpressionOperator.NotExists, attribute: 'missing_attribute' },
+    ] as Array<FilterExpression>
+
+    dynamoDbAdapter.query('partitionvalue', 'sortvalue', filters as any)
 
     const expectedParams = {
       "ExpressionAttributeValues": {
@@ -70,9 +74,10 @@ describe('DynamoDbAdapter', () => {
       }, 
       "KeyConditionExpression": "partitionkey = :partitionValue AND sortkey = :sortValue", 
       "TableName": "tablename",
-      "FilterExpression": "attribute_exists(#nepe)",
+      "FilterExpression": "attribute_exists(#having_attribute) AND attribute_not_exists(#missing_attribute)",
       "ExpressionAttributeNames": {
-        "#nepe": "nepe"
+        "#having_attribute": "having_attribute",
+        "#missing_attribute": "missing_attribute"
       }
     }
     expect(clientMock.query).toBeCalledWith(

@@ -1,6 +1,5 @@
 import { reservedKeywords } from '../utils/constants'
-import {Entity, FilterExpression, FilterExpressionOperator, TableConfig} from '../types'
-import ExpressionBuilder from './expressionBuilder'
+import {Entity, FilterExpression, TableConfig} from '../types'
 import QueryParamBuilder from './queryParamBuilder'
 
 export default class DynamoDbAdapter {
@@ -54,7 +53,11 @@ export default class DynamoDbAdapter {
   }
 
   
-  async query<T>(partitionValue: string, sortValue?: string, filter?: FilterExpression): Promise<T[]> {
+  async query<T>(
+    partitionValue: string, 
+    sortValue?: string, 
+    filter?: Array<FilterExpression>
+  ): Promise<T[]> {
     const params = this.queryParamBuilder.build(partitionValue, sortValue, filter)
 
     const promise = new Promise<T[]>((resolve: Function, reject: Function) => {

@@ -10,7 +10,7 @@ export default class QueryParamBuilder {
     this.expressionBuilder = expressionBuilder
   }
 
-  build(partitionValue: string, sortValue?: string, filter?: FilterExpression) {
+  build(partitionValue: string, sortValue?: string, filters?: Array<FilterExpression>) {
     const hasSortValue = Boolean(sortValue)
     const params = {
       TableName: this.tableConfig.tableName,
@@ -18,8 +18,10 @@ export default class QueryParamBuilder {
       ExpressionAttributeValues: this.expressionBuilder.expressionAttributeValues(partitionValue, sortValue),
     }
 
-    if (filter) {
-      const {filterExpression, expressionAttributeNames} = this.expressionBuilder.filterExpression(filter)
+    const hasFilters = Array.isArray(filters) && filters.length > 0
+
+    if (hasFilters) {
+      const {filterExpression, expressionAttributeNames} = this.expressionBuilder.filterExpression(filters)
       params['FilterExpression'] = filterExpression
       params['ExpressionAttributeNames'] = expressionAttributeNames      
     }
