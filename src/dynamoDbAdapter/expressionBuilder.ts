@@ -1,4 +1,4 @@
-import { FilterExpression, TableConfig } from '../types.js'
+import { TableConfig } from '../types.js'
 
 export default class ExpressionBuilder {
   private readonly tableConfig: TableConfig
@@ -18,7 +18,7 @@ export default class ExpressionBuilder {
     return result
   }
 
-  expressionAttributeValues (partitionValue: string, sortValue?: string, filter?: FilterExpression): Object {
+  expressionAttributeValues (partitionValue: string, sortValue?: string): Object {
     const hasSortKey = Boolean(this.tableConfig.sortKey)
     const hasSortValue = hasSortKey && Boolean(sortValue)
 
