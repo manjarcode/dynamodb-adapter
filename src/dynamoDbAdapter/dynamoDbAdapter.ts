@@ -1,6 +1,7 @@
 import { reservedKeywords } from '../utils/constants.js'
 import {Entity, FilterExpression, TableConfig} from '../types.js'
 import QueryParamBuilder from './queryParamBuilder.js'
+import { QueryInput } from 'aws-sdk/clients/dynamodb.js'
 
 export default class DynamoDbAdapter {
   private readonly client: AWS.DynamoDB.DocumentClient
@@ -52,7 +53,6 @@ export default class DynamoDbAdapter {
     return await promise
   }
 
-  
   async query<T>(
     partitionValue: string, 
     sortValue?: string, 
@@ -61,7 +61,7 @@ export default class DynamoDbAdapter {
     const params = this.queryParamBuilder.build(partitionValue, sortValue, filter)
 
     const promise = new Promise<T[]>((resolve: Function, reject: Function) => {
-      this.client.query(params, function (error: Error, data: any) {
+      this.client.query(params as QueryInput, function (error: Error, data: any) {
         if (error !== null) {
           reject(error)
         }

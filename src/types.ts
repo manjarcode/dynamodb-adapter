@@ -24,3 +24,11 @@ export interface FilterExpression {
   attribute: string,
   value?: string
 }
+
+export interface QueryParams {
+  TableName: string
+  KeyConditionExpression: string
+  ExpressionAttributeValues: Object
+  FilterExpression?: string
+  ExpressionAttributeNames?: Object
+}

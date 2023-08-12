@@ -25,14 +25,8 @@ export default class QueryParamBuilder {
       ExpressionAttributeValues: this.expressionBuilder.expressionAttributeValues(partitionValue, sortValue),
     }
 
-    const hasFilters = Array.isArray(filters) && filters.length > 0
-  
-    if (hasFilters) {
-      const {filterExpression, expressionAttributeNames} = this.filterBuilder.build(filters)
-      params['FilterExpression'] = filterExpression
-      params['ExpressionAttributeNames'] = expressionAttributeNames      
-    }
-
-    return params
+    const paramWithFilters = this.filterBuilder.apply(params, filters)
+    
+    return paramWithFilters
   }
 }
