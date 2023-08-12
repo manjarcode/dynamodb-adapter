@@ -1,88 +1,92 @@
-import {describe, expect, test, jest} from '@jest/globals'
+import { describe, expect, jest, test } from '@jest/globals'
 
-import DynamoDbAdapter from '../dynamoDbAdapter'
-import { FilterExpression, FilterExpressionOperator, TableConfig } from '../../types'
-import { QueryParamBuilderFactory } from '../factory'
+import { FilterExpression, FilterExpressionOperator, TableConfig } from '../../types.js'
+import DynamoDbAdapter from '../dynamoDbAdapter.js'
+import { QueryParamBuilderFactory } from '../factory.js'
+
+interface ClientMock {
+  query: jest.Mock
+}
 
 describe('DynamoDbAdapter', () => {
-  const setup = () => {
-    const clientMock = {
+  function setup (): { dynamoDbAdapter: DynamoDbAdapter, clientMock: ClientMock} {
+    const clientMock: ClientMock = {
       query: jest.fn()
     }
 
-    const tableConfig = {
+    const tableConfig: TableConfig = {
       tableName: 'tablename',
       partitionKey: 'partitionkey',
       sortKey: 'sortkey'
-    } as TableConfig
-    
+    }
+
     const queryBuilder = QueryParamBuilderFactory.create(tableConfig)
     const dynamoDbAdapter = new DynamoDbAdapter(tableConfig, clientMock as any, queryBuilder)
 
-    return {dynamoDbAdapter, clientMock}
+    return { dynamoDbAdapter, clientMock }
   }
 
   test('query with partitionvalue', () => {
-    const {dynamoDbAdapter, clientMock} = setup()
-    dynamoDbAdapter.query('partitionvalue')
+    const { dynamoDbAdapter, clientMock } = setup()
+    void dynamoDbAdapter.query('partitionvalue')
 
     const expectedParams = {
-      "ExpressionAttributeValues": {
-        ":partitionValue": "partitionvalue", 
-      }, 
-      "KeyConditionExpression": "partitionkey = :partitionValue", 
-      "TableName": "tablename"
+      ExpressionAttributeValues: {
+        ':partitionValue': 'partitionvalue'
+      },
+      KeyConditionExpression: 'partitionkey = :partitionValue',
+      TableName: 'tablename'
     }
 
     expect(clientMock.query).toBeCalledWith(
       expectedParams,
       expect.anything()
-     )
+    )
   })
 
-  test('query with partitionvalue and sortvalue', () => {   
-    const {dynamoDbAdapter, clientMock} = setup()
-    dynamoDbAdapter.query('partitionvalue', 'sortvalue')
+  test('query with partitionvalue and sortvalue', async () => {
+    const { dynamoDbAdapter, clientMock } = setup()
+    void dynamoDbAdapter.query('partitionvalue', 'sortvalue')
 
     const expectedParams = {
-      "ExpressionAttributeValues": {
-        ":partitionValue": "partitionvalue", 
-        ":sortValue": "sortvalue"
-      }, 
-      "KeyConditionExpression": "partitionkey = :partitionValue AND sortkey = :sortValue", 
-      "TableName": "tablename"
+      ExpressionAttributeValues: {
+        ':partitionValue': 'partitionvalue',
+        ':sortValue': 'sortvalue'
+      },
+      KeyConditionExpression: 'partitionkey = :partitionValue AND sortkey = :sortValue',
+      TableName: 'tablename'
     }
     expect(clientMock.query).toBeCalledWith(
       expectedParams,
       expect.anything()
-     )
+    )
   })
 
-  test('query with partitionvalue, sortvalue and exists filters', () => {
-    const {dynamoDbAdapter, clientMock} = setup()
+  test('query with partitionvalue, sortvalue and exists filters', async () => {
+    const { dynamoDbAdapter, clientMock } = setup()
     const filters = [
       { operator: FilterExpressionOperator.Exists, attribute: 'having_attribute' },
-      { operator: FilterExpressionOperator.NotExists, attribute: 'missing_attribute' },
-    ] as Array<FilterExpression>
+      { operator: FilterExpressionOperator.NotExists, attribute: 'missing_attribute' }
+    ] as FilterExpression[]
 
-    dynamoDbAdapter.query('partitionvalue', 'sortvalue', filters as any)
+    void dynamoDbAdapter.query('partitionvalue', 'sortvalue', filters as any)
 
     const expectedParams = {
-      "ExpressionAttributeValues": {
-        ":partitionValue": "partitionvalue", 
-        ":sortValue": "sortvalue"
-      }, 
-      "KeyConditionExpression": "partitionkey = :partitionValue AND sortkey = :sortValue", 
-      "TableName": "tablename",
-      "FilterExpression": "attribute_exists(#having_attribute) AND attribute_not_exists(#missing_attribute)",
-      "ExpressionAttributeNames": {
-        "#having_attribute": "having_attribute",
-        "#missing_attribute": "missing_attribute"
+      ExpressionAttributeValues: {
+        ':partitionValue': 'partitionvalue',
+        ':sortValue': 'sortvalue'
+      },
+      KeyConditionExpression: 'partitionkey = :partitionValue AND sortkey = :sortValue',
+      TableName: 'tablename',
+      FilterExpression: 'attribute_exists(#having_attribute) AND attribute_not_exists(#missing_attribute)',
+      ExpressionAttributeNames: {
+        '#having_attribute': 'having_attribute',
+        '#missing_attribute': 'missing_attribute'
       }
     }
     expect(clientMock.query).toBeCalledWith(
       expectedParams,
       expect.anything()
-     )
+    )
   })
 })

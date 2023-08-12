@@ -36,7 +36,7 @@ dynamoDbAdapter.add(item).then(() => {
 })
 
 //QUERY
-dynamoDbAdapter.query('id', itemId).then((results) => {
+dynamoDbAdapter.query(itemId).then((results) => {
   console.log('query:', results)
 })
 
@@ -44,7 +44,6 @@ dynamoDbAdapter.query('id', itemId).then((results) => {
 dynamoDbAdapter.scan().then((results) => {
   console.log('scan', results)
 })
-
 
 // UPDATE
 const item = {
@@ -58,7 +57,6 @@ const item = {
 dynamoDbAdapter.update(item).then(() => {
   console.log('updated successfully')
 })
-
 
 // DELETE
 dynamoDbAdapter.delete(itemId).then(() => {

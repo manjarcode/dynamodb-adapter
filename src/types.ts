@@ -20,8 +20,8 @@ export enum FilterExpressionOperator {
 }
 
 export interface FilterExpression {
-  operator: FilterExpressionOperator,  
-  attribute: string,
+  operator: FilterExpressionOperator
+  attribute: string
   value?: string
 }
 
@@ -30,5 +30,13 @@ export interface QueryParams {
   KeyConditionExpression: string
   ExpressionAttributeValues: Object
   FilterExpression?: string
+  ExpressionAttributeNames?: Object
+}
+
+export interface UpdateParams {
+  TableName: string
+  Key: Object
+  UpdateExpression: string
+  ExpressionAttributeValues: Object
   ExpressionAttributeNames?: Object
 }

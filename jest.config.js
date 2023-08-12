@@ -2,16 +2,14 @@
 export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: [
-    "<rootDir>/src"
-  ],
+  roots: ['<rootDir>/src'],
   testMatch: [
-    "**/__tests__/**/*.+(ts|tsx|js)",
-    "**/?(*.)+(spec|test).+(ts|tsx|js)"
+    '**/__tests__/**/*.+(ts|tsx|js)',
+    '**/?(*.)+(spec|test).+(ts|tsx|js)'
   ],
   transform: {
-    "^.+\\.jsx?$": "babel-jest",
-    "^.+\\.(ts|tsx)$": "ts-jest"
+    '^.+\\.jsx?$': 'babel-jest',
+    '^.+\\.(ts|tsx)$': 'ts-jest'
   },
   moduleNameMapper: {
     '(.+)\\.js': '$1'

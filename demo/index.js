@@ -1,6 +1,9 @@
+/* eslint-disable no-console */
+import process from 'process'
+
+import dotenv from 'dotenv'
+
 import DynamoDbAdapterFactory from '../lib/index.js'
-import process from "process"
-import dotenv from "dotenv"
 
 dotenv.config()
 
@@ -17,28 +20,34 @@ const partitionKey = 'reportId'
 const sortKey = 'date'
 
 const dynamoDbAdapter = DynamoDbAdapterFactory.create(
-  TABLE, partitionKey, sortKey, config
+  TABLE,
+  partitionKey,
+  sortKey,
+  config
 )
 
-dynamoDbAdapter.scan().then((results) => {
+dynamoDbAdapter.scan().then(results => {
   console.log('scan:', results)
 })
 
-const filters = [{
-  attribute: 'category',
-  operator: 'Exists'
-}
+const filters = [
+  {
+    attribute: 'category',
+    operator: 'Exists'
+  }
 ]
-dynamoDbAdapter.query('21c9f232-52d2-4594-8884-5f96473583f4', null, filters).then((results) => {
-  console.log('query:', results)
-})
+dynamoDbAdapter
+  .query('21c9f232-52d2-4594-8884-5f96473583f4', null, filters)
+  .then(results => {
+    console.log('query:', results)
+  })
 
 const item = {
   reportId: '21c9f232-52d2-4594-8884-5f96473583f4',
   date: 1682978400000,
   amount: -16.6,
   description: 'Pago en GROUCHOS MADRID ES',
-  category: 'Alimentación',
+  category: 'Alimentación'
 }
 
 dynamoDbAdapter.update(item)

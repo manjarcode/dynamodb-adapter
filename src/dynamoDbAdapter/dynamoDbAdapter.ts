@@ -1,7 +1,8 @@
+import { QueryInput, UpdateItemInput } from 'aws-sdk/clients/dynamodb.js'
+
+import { Entity, FilterExpression, TableConfig, UpdateParams } from '../types.js'
 import { reservedKeywords } from '../utils/constants.js'
-import {Entity, FilterExpression, TableConfig} from '../types.js'
 import QueryParamBuilder from './queryParamBuilder.js'
-import { QueryInput } from 'aws-sdk/clients/dynamodb.js'
 
 export default class DynamoDbAdapter {
   private readonly client: AWS.DynamoDB.DocumentClient
@@ -10,7 +11,7 @@ export default class DynamoDbAdapter {
 
   constructor (tableConfig: TableConfig,
     documentClient: AWS.DynamoDB.DocumentClient,
-    queryBuilder: QueryParamBuilder,
+    queryBuilder: QueryParamBuilder
   ) {
     this.tableConfig = tableConfig
     this.client = documentClient
@@ -41,7 +42,6 @@ export default class DynamoDbAdapter {
 
     const promise = new Promise<T[]>((resolve: Function, reject: Function) => {
       this.client.scan(params, function (error, data: any) {
-
         if (error !== null) {
           reject(error)
         }
@@ -54,9 +54,9 @@ export default class DynamoDbAdapter {
   }
 
   async query<T>(
-    partitionValue: string, 
-    sortValue?: string, 
-    filter?: Array<FilterExpression>
+    partitionValue: string,
+    sortValue?: string,
+    filter?: FilterExpression[]
   ): Promise<T[]> {
     const params = this.queryParamBuilder.build(partitionValue, sortValue, filter)
 
@@ -69,7 +69,7 @@ export default class DynamoDbAdapter {
         resolve(data?.Items)
       })
     })
-    
+
     return await promise
   }
 
@@ -99,7 +99,7 @@ export default class DynamoDbAdapter {
 
     const expressionAttributeValues = this.expressionAttributeValues(itemContent)
 
-    const params = {
+    const params: UpdateParams = {
       TableName: this.tableConfig.tableName,
       Key: { ...keysContent },
       UpdateExpression: updateExpression,
@@ -109,19 +109,22 @@ export default class DynamoDbAdapter {
     const hasExpressionAttributeNames = Object.keys(expressionAttributesNames).length > 0
 
     if (hasExpressionAttributeNames) {
-      params['ExpressionAttributeNames'] = expressionAttributesNames
+      params.ExpressionAttributeNames = expressionAttributesNames
     }
 
     const promise = new Promise<void>((resolve: Function, reject: Function) => {
-      this.client.update(params, function (error) {
+      this.client.update(params as UpdateItemInput, function (error) {
         error === null ? resolve() : reject(error)
       })
     })
 
-    return promise
+    return await promise
   }
 
-  private removeKeys<T extends object>(item: T, removeCondition) {   
+  private removeKeys<T extends Object>(
+    item: T,
+    removeCondition: (key: string) => boolean
+  ): Object {
     const entries = Object.entries(item)
 
     const removedKeys = entries
@@ -130,7 +133,7 @@ export default class DynamoDbAdapter {
         return shouldRemove ? null : [key, value]
       })
       .filter(Boolean) as Array<[string, any]>
-    
+
     const assambleObj = Object.fromEntries(removedKeys)
 
     return assambleObj

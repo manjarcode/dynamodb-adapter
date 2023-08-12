@@ -1,15 +1,15 @@
-import { TableConfig, FilterExpression } from "../types.js"
-import ExpressionBuilder from "./expressionBuilder.js"
-import FilterBuilder from "./filterBuilder.js"
+import { FilterExpression, QueryParams, TableConfig } from '../types.js'
+import ExpressionBuilder from './expressionBuilder.js'
+import FilterBuilder from './filterBuilder.js'
 
 export default class QueryParamBuilder {
   private readonly tableConfig: TableConfig
   private readonly expressionBuilder: ExpressionBuilder
   private readonly filterBuilder: FilterBuilder
 
-  constructor(
-    tableConfig: TableConfig, 
-    expressionBuilder: ExpressionBuilder, 
+  constructor (
+    tableConfig: TableConfig,
+    expressionBuilder: ExpressionBuilder,
     filterBuilder: FilterBuilder
   ) {
     this.tableConfig = tableConfig
@@ -17,16 +17,16 @@ export default class QueryParamBuilder {
     this.filterBuilder = filterBuilder
   }
 
-  build(partitionValue: string, sortValue?: string, filters?: Array<FilterExpression>) {
+  build (partitionValue: string, sortValue?: string, filters?: FilterExpression[]): QueryParams {
     const hasSortValue = Boolean(sortValue)
     const params = {
       TableName: this.tableConfig.tableName,
       KeyConditionExpression: this.expressionBuilder.keyConditionExpression(hasSortValue),
-      ExpressionAttributeValues: this.expressionBuilder.expressionAttributeValues(partitionValue, sortValue),
+      ExpressionAttributeValues: this.expressionBuilder.expressionAttributeValues(partitionValue, sortValue)
     }
 
     const paramWithFilters = this.filterBuilder.apply(params, filters)
-    
+
     return paramWithFilters
   }
 }

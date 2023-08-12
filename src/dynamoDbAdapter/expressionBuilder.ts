@@ -1,34 +1,37 @@
-import { FilterExpression, FilterExpressionOperator, TableConfig } from "../types.js"
+import { FilterExpression, TableConfig } from '../types.js'
 
 export default class ExpressionBuilder {
   private readonly tableConfig: TableConfig
 
-  constructor(tableConfig: TableConfig) {
+  constructor (tableConfig: TableConfig) {
     this.tableConfig = tableConfig
   }
 
-  keyConditionExpression(hasSortValue: boolean): string {
+  keyConditionExpression (hasSortValue: boolean): string {
     let result = `${this.tableConfig.partitionKey} = :partitionValue`
-    
-    if (hasSortValue) {
-      result = result.concat(` AND ${this.tableConfig.sortKey} = :sortValue`)
+
+    const hasSortKey = Boolean(this.tableConfig.sortKey)
+    if (hasSortKey && hasSortValue) {
+      result = result.concat(` AND ${String(this.tableConfig.sortKey)} = :sortValue`)
     }
-  
+
     return result
   }
 
-  expressionAttributeValues(partitionValue: string, sortValue?: string, filter?: FilterExpression) : Object {
+  expressionAttributeValues (partitionValue: string, sortValue?: string, filter?: FilterExpression): Object {
     const hasSortKey = Boolean(this.tableConfig.sortKey)
     const hasSortValue = hasSortKey && Boolean(sortValue)
-    const expressionAttributeValues = {
+
+    const expressionAttributeValues: Object = {
       ':partitionValue': partitionValue
     }
+
     if (hasSortValue) {
-      expressionAttributeValues[':sortValue'] = sortValue
+      Object.assign(expressionAttributeValues, {
+        ':sortValue': sortValue
+      })
     }
 
     return expressionAttributeValues
   }
-
-  
 }
