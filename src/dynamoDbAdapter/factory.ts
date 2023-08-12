@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 import DocumentClientFactory from '../documentClient/factory.js'
 import { AwsConfig, TableConfig } from '../types.js'
+import FilterBuilder from './filterBuilder/filterBuilder.js'
 import DynamoDbAdapter from './dynamoDbAdapter.js'
 import ExpressionBuilder from './expressionBuilder.js'
-import FilterBuilder from './filterBuilder.js'
 import QueryParamBuilder from './queryParamBuilder.js'
 import ScanParamBuilder from './scanParamBuilder.js'
 

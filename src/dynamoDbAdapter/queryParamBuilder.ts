@@ -1,6 +1,6 @@
 import { FilterExpression, QueryParams, TableConfig } from '../types.js'
+import FilterBuilder from './filterBuilder/filterBuilder.js'
 import ExpressionBuilder from './expressionBuilder.js'
-import FilterBuilder from './filterBuilder.js'
 
 export default class QueryParamBuilder {
   private readonly tableConfig: TableConfig

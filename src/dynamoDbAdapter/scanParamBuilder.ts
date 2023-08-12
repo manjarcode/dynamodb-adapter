@@ -1,5 +1,5 @@
 import { FilterExpression, ScanParams, TableConfig } from '../types.js'
-import FilterBuilder from './filterBuilder.js'
+import FilterBuilder from './filterBuilder/filterBuilder.js'
 
 export default class ScanParamBuilder {
   private readonly tableConfig: TableConfig

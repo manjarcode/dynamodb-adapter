@@ -1,4 +1,4 @@
-import { FilterExpression, FilterExpressionOperator, Queryable } from '../types.js'
+import { FilterExpression, FilterExpressionOperator, Queryable } from '../../types.js'
 
 export default class FilterBuilder {
   apply (params: Queryable, filters?: FilterExpression[]): Queryable {
