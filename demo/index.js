@@ -25,17 +25,16 @@ const dynamoDbAdapter = DynamoDbAdapterFactory.create(
   sortKey,
   config
 )
-
-dynamoDbAdapter.scan().then(results => {
-  console.log('scan:', results)
-})
-
 const filters = [
   {
     attribute: 'category',
     operator: 'Exists'
   }
 ]
+dynamoDbAdapter.scan(filters).then(results => {
+  console.log('scan:', results)
+})
+
 dynamoDbAdapter
   .query('21c9f232-52d2-4594-8884-5f96473583f4', null, filters)
   .then(results => {

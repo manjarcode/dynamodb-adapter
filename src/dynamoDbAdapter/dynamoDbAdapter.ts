@@ -1,21 +1,25 @@
-import { QueryInput, UpdateItemInput } from 'aws-sdk/clients/dynamodb.js'
+import { QueryInput, ScanInput, UpdateItemInput } from 'aws-sdk/clients/dynamodb.js'
 
 import { Entity, FilterExpression, TableConfig, UpdateParams } from '../types.js'
 import { reservedKeywords } from '../utils/constants.js'
 import QueryParamBuilder from './queryParamBuilder.js'
+import ScanParamBuilder from './scanParamBuilder.js'
 
 export default class DynamoDbAdapter {
   private readonly client: AWS.DynamoDB.DocumentClient
   private readonly tableConfig: TableConfig
+  private readonly scanParamBuilder: ScanParamBuilder
   private readonly queryParamBuilder: QueryParamBuilder
 
   constructor (tableConfig: TableConfig,
     documentClient: AWS.DynamoDB.DocumentClient,
+    scanParamBuilder: ScanParamBuilder,
     queryBuilder: QueryParamBuilder
   ) {
     this.tableConfig = tableConfig
     this.client = documentClient
     this.queryParamBuilder = queryBuilder
+    this.scanParamBuilder = scanParamBuilder
   }
 
   async add<T extends Object>(item: T): Promise<void> {
@@ -35,18 +39,16 @@ export default class DynamoDbAdapter {
     return await promise
   }
 
-  async scan<T>(): Promise<T[]> {
-    const params = {
-      TableName: this.tableConfig.tableName
-    }
+  async scan<T>(filters?: FilterExpression[]): Promise<T[]> {
+    const params = this.scanParamBuilder.build(filters)
 
     const promise = new Promise<T[]>((resolve: Function, reject: Function) => {
-      this.client.scan(params, function (error, data: any) {
-        if (error !== null) {
+      this.client.scan(params as ScanInput, (error: Error, data: any) => {
+        if (error != null) {
           reject(error)
+        } else {
+          resolve(data.Items)
         }
-
-        resolve(data.Items)
       })
     })
 
@@ -62,11 +64,11 @@ export default class DynamoDbAdapter {
 
     const promise = new Promise<T[]>((resolve: Function, reject: Function) => {
       this.client.query(params as QueryInput, function (error: Error, data: any) {
-        if (error !== null) {
+        if (error != null) {
           reject(error)
+        } else {
+          resolve(data.Items)
         }
-
-        resolve(data?.Items)
       })
     })
 

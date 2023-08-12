@@ -1,14 +1,14 @@
-import { FilterExpression, FilterExpressionOperator, QueryParams } from '../types.js'
+import { FilterExpression, FilterExpressionOperator, Queryable } from '../types.js'
 
 export default class FilterBuilder {
-  apply (params: QueryParams, filters?: FilterExpression[]): QueryParams {
+  apply (params: Queryable, filters?: FilterExpression[]): Queryable {
     const hasFilters = Array.isArray(filters) && filters.length > 0
 
     if (!hasFilters) {
       return params
     }
 
-    const paramWithFilters = { ...params }
+    const paramWithFilters: Queryable = { ...params }
     const filterExpression = filters
       .map(this.mapFilterExpression)
       .filter(Boolean)

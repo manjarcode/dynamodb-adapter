@@ -25,13 +25,18 @@ export interface FilterExpression {
   value?: string
 }
 
-export interface QueryParams {
+export interface Queryable {
   TableName: string
-  KeyConditionExpression: string
-  ExpressionAttributeValues: Object
   FilterExpression?: string
   ExpressionAttributeNames?: Object
 }
+
+export interface QueryParams extends Queryable {
+  KeyConditionExpression: string
+  ExpressionAttributeValues: Object
+}
+
+export interface ScanParams extends Queryable { }
 
 export interface UpdateParams {
   TableName: string

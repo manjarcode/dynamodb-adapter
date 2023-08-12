@@ -5,6 +5,7 @@ import DynamoDbAdapter from './dynamoDbAdapter.js'
 import ExpressionBuilder from './expressionBuilder.js'
 import FilterBuilder from './filterBuilder.js'
 import QueryParamBuilder from './queryParamBuilder.js'
+import ScanParamBuilder from './scanParamBuilder.js'
 
 export default class DynamoDbAdapterFactory {
   static create (
@@ -18,6 +19,7 @@ export default class DynamoDbAdapterFactory {
     const dynamoDbAdapter = new DynamoDbAdapter(
       tableConfig,
       DocumentClientFactory.create(config),
+      ScanParamBuilderFactory.create(tableConfig),
       QueryParamBuilderFactory.create(tableConfig)
     )
 
@@ -39,6 +41,16 @@ export class FilterBuilderFactory {
   }
 }
 
+export class ScanParamBuilderFactory {
+  static create (
+    tableconfig: TableConfig
+  ): ScanParamBuilder {
+    return new ScanParamBuilder(
+      tableconfig,
+      FilterBuilderFactory.create()
+    )
+  }
+}
 export class QueryParamBuilderFactory {
   static create (
     tableConfig: TableConfig

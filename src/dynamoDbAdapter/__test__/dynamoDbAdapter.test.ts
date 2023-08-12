@@ -2,15 +2,17 @@ import { describe, expect, jest, test } from '@jest/globals'
 
 import { FilterExpression, FilterExpressionOperator, TableConfig } from '../../types.js'
 import DynamoDbAdapter from '../dynamoDbAdapter.js'
-import { QueryParamBuilderFactory } from '../factory.js'
+import { QueryParamBuilderFactory, ScanParamBuilderFactory } from '../factory.js'
 
 interface ClientMock {
+  scan: jest.Mock
   query: jest.Mock
 }
 
 describe('DynamoDbAdapter', () => {
   function setup (): { dynamoDbAdapter: DynamoDbAdapter, clientMock: ClientMock} {
     const clientMock: ClientMock = {
+      scan: jest.fn(),
       query: jest.fn()
     }
 
@@ -20,11 +22,43 @@ describe('DynamoDbAdapter', () => {
       sortKey: 'sortkey'
     }
 
+    const scanParamBuilder = ScanParamBuilderFactory.create(tableConfig)
     const queryBuilder = QueryParamBuilderFactory.create(tableConfig)
-    const dynamoDbAdapter = new DynamoDbAdapter(tableConfig, clientMock as any, queryBuilder)
+    const dynamoDbAdapter = new DynamoDbAdapter(tableConfig, clientMock as any, scanParamBuilder, queryBuilder)
 
     return { dynamoDbAdapter, clientMock }
   }
+
+  test('scan', () => {
+    const { dynamoDbAdapter, clientMock } = setup()
+    void dynamoDbAdapter.scan()
+    const expectedParams = {
+      TableName: 'tablename'
+    }
+
+    expect(clientMock.scan).toBeCalledWith(expectedParams, expect.anything())
+  })
+
+  test('scan with filters', () => {
+    const { dynamoDbAdapter, clientMock } = setup()
+
+    const filters: FilterExpression[] = [
+      { operator: FilterExpressionOperator.Exists, attribute: 'having_attribute' },
+      { operator: FilterExpressionOperator.NotExists, attribute: 'missing_attribute' }
+    ]
+
+    void dynamoDbAdapter.scan(filters)
+    const expectedParams = {
+      TableName: 'tablename',
+      FilterExpression: 'attribute_exists(#having_attribute) AND attribute_not_exists(#missing_attribute)',
+      ExpressionAttributeNames: {
+        '#having_attribute': 'having_attribute',
+        '#missing_attribute': 'missing_attribute'
+      }
+    }
+
+    expect(clientMock.scan).toBeCalledWith(expectedParams, expect.anything())
+  })
 
   test('query with partitionvalue', () => {
     const { dynamoDbAdapter, clientMock } = setup()
@@ -62,12 +96,12 @@ describe('DynamoDbAdapter', () => {
     )
   })
 
-  test('query with partitionvalue, sortvalue and exists filters', async () => {
+  test('query with partitionvalue, sortvalue and filters', async () => {
     const { dynamoDbAdapter, clientMock } = setup()
-    const filters = [
+    const filters: FilterExpression[] = [
       { operator: FilterExpressionOperator.Exists, attribute: 'having_attribute' },
       { operator: FilterExpressionOperator.NotExists, attribute: 'missing_attribute' }
-    ] as FilterExpression[]
+    ]
 
     void dynamoDbAdapter.query('partitionvalue', 'sortvalue', filters as any)
 

@@ -27,6 +27,7 @@ export default class QueryParamBuilder {
 
     const paramWithFilters = this.filterBuilder.apply(params, filters)
 
-    return paramWithFilters
+    Object.assign(params, paramWithFilters)
+    return params
   }
 }
