@@ -2,6 +2,7 @@ import DocumentClientFactory from "../documentClient/factory.js"
 import { AwsConfig, TableConfig } from "../types.js"
 import DynamoDbAdapter from "./dynamoDbAdapter.js"
 import ExpressionBuilder from "./expressionBuilder.js"
+import FilterBuilder from "./filterBuilder.js"
 import QueryParamBuilder from "./queryParamBuilder.js"
 
 export default class DynamoDbAdapterFactory {
@@ -32,13 +33,20 @@ export class ExpressionBuilderFactory {
   }
 }
 
+export class FilterBuilderFactory {
+  static create() : FilterBuilder {
+    return new FilterBuilder()
+  }
+}
+
 export class QueryParamBuilderFactory {
   static create(
     tableConfig: TableConfig
   ) : QueryParamBuilder {
     return new QueryParamBuilder(
       tableConfig, 
-      ExpressionBuilderFactory.create(tableConfig)
+      ExpressionBuilderFactory.create(tableConfig),
+      FilterBuilderFactory.create()
     )
   }
 }
