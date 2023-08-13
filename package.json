@@ -9,7 +9,7 @@
     "demo": "node ./demo/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "lint" : "sui-lint js"
+    "lint": "sui-lint js"
   },
   "repository": {
     "type": "git",
@@ -28,8 +28,9 @@
   },
   "homepage": "https://github.com/manjarcode/dynamodb-adapter#readme",
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.388.0",
+    "@aws-sdk/lib-dynamodb": "^3.388.0",
     "@s-ui/lint": "^4.33.0",
-    "aws-sdk": "^2.1399.0",
     "dotenv": "^16.3.1",
     "process": "^0.11.10"
   },

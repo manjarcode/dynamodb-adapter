@@ -2,12 +2,6 @@ export interface Entity {
   id: string
 }
 
-export interface AwsConfig {
-  accessKeyId: string
-  secretAccessKey: string
-  region: string
-}
-
 export interface TableConfig {
   tableName: string
   partitionKey: string

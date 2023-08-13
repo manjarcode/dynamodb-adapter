@@ -1,23 +1,20 @@
 # dynamodb-adapter
-Adapter to use dynamoDB in node
+Adapter to use dynamoDB from AWS for node. The purpose of this package is to simplify the use of dynamoDB instead of using the AWS DynamoDB client directly. With this package you will be able to use the basic CRUD operations with an easier interface.
 
 
 # example of use
+You can find some examples of use below.
 
 ```javascript
 import DynamoDbAdapterFactory from '../lib/index.js'
 
 const TABLE = 'expenses'
 
-const config = {
-  accessKeyId: 'YOUR ACCESS KEY ID GOES HERE',
-  secretAccessKey: 'YOUR SECRET ACCESS KEY GOES HERE',  
-  region: 'YOUR REGION GOES HERE',
-}
+
 const partitionKey = 'partitionKey'
 const sortKey = 'sortKey'
 const dynamoDbAdapter = DynamoDbAdapterFactory.create(
-  TABLE, config, partitionKey, sortKey
+  TABLE, partitionKey, sortKey
 )
 
 const itemId = '40c6bac9-2b9e-49c9-9ea2-fafc885e6302'

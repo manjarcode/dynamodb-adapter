@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 import DocumentClientFactory from '../documentClient/factory.js'
-import { AwsConfig, TableConfig } from '../types.js'
+import { TableConfig } from '../types.js'
 import FilterBuilder from './filterBuilder/filterBuilder.js'
 import DynamoDbAdapter from './dynamoDbAdapter.js'
 import ExpressionBuilder from './expressionBuilder.js'
@@ -11,14 +11,13 @@ export default class DynamoDbAdapterFactory {
   static create (
     tableName: string,
     partitionKey: string,
-    sortKey: string,
-    config?: AwsConfig
+    sortKey: string
   ): DynamoDbAdapter {
     const tableConfig: TableConfig = { tableName, partitionKey, sortKey }
 
     const dynamoDbAdapter = new DynamoDbAdapter(
       tableConfig,
-      DocumentClientFactory.create(config),
+      DocumentClientFactory.create(),
       ScanParamBuilderFactory.create(tableConfig),
       QueryParamBuilderFactory.create(tableConfig)
     )

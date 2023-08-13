@@ -1,6 +1,4 @@
 /* eslint-disable no-console */
-import process from 'process'
-
 import dotenv from 'dotenv'
 
 import DynamoDbAdapterFactory from '../lib/index.js'
@@ -10,12 +8,6 @@ dotenv.config()
 
 const TABLE = 'tbt-expenses'
 
-const config = {
-  accessKeyId: process.env.DB_ACCESS_KEY_ID,
-  secretAccessKey: process.env.DB_SECRET_ACCESS_KEY,
-  region: process.env.DB_REGION
-}
-
 const partitionKey = 'reportId'
 
 const sortKey = 'date'
@@ -23,14 +15,14 @@ const sortKey = 'date'
 const dynamoDbAdapter = DynamoDbAdapterFactory.create(
   TABLE,
   partitionKey,
-  sortKey,
-  config
+  sortKey
 )
+
 const filters = [
   {
-    attribute: 'amount',
-    operator: FilterExpressionOperator.LowerEqualThan,
-    value: -21.8
+    attribute: 'category',
+    operator: FilterExpressionOperator.Equals,
+    value: 'Tremendo'
   }
 ]
 dynamoDbAdapter.scan(filters).then(results => {
@@ -48,7 +40,7 @@ const item = {
   date: 1682978400000,
   amount: -16.6,
   description: 'Pago en GROUCHOS MADRID ES',
-  category: 'Alimentación'
+  category: 'Tremendo'
 }
 
 dynamoDbAdapter.update(item)

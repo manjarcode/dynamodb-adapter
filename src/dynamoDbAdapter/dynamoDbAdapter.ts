@@ -1,4 +1,4 @@
-import { QueryInput, ScanInput, UpdateItemInput } from 'aws-sdk/clients/dynamodb.js'
+import { DynamoDBDocument, QueryCommandInput, ScanCommandInput, UpdateCommandInput } from '@aws-sdk/lib-dynamodb'
 
 import { Entity, FilterExpression, TableConfig, UpdateParams } from '../types.js'
 import { reservedKeywords } from '../utils/constants.js'
@@ -6,13 +6,13 @@ import QueryParamBuilder from './queryParamBuilder.js'
 import ScanParamBuilder from './scanParamBuilder.js'
 
 export default class DynamoDbAdapter {
-  private readonly client: AWS.DynamoDB.DocumentClient
+  private readonly client: DynamoDBDocument
   private readonly tableConfig: TableConfig
   private readonly scanParamBuilder: ScanParamBuilder
   private readonly queryParamBuilder: QueryParamBuilder
 
   constructor (tableConfig: TableConfig,
-    documentClient: AWS.DynamoDB.DocumentClient,
+    documentClient: DynamoDBDocument,
     scanParamBuilder: ScanParamBuilder,
     queryBuilder: QueryParamBuilder
   ) {
@@ -42,9 +42,8 @@ export default class DynamoDbAdapter {
   async scan<T>(filters?: FilterExpression[]): Promise<T[]> {
     const params = this.scanParamBuilder.build(filters)
 
-    console.log('params', params)
     const promise = new Promise<T[]>((resolve: Function, reject: Function) => {
-      this.client.scan(params as ScanInput, (error: Error, data: any) => {
+      this.client.scan(params as ScanCommandInput, (error: Error, data: any) => {
         if (error != null) {
           reject(error)
         } else {
@@ -63,17 +62,9 @@ export default class DynamoDbAdapter {
   ): Promise<T[]> {
     const params = this.queryParamBuilder.build(partitionValue, sortValue, filter)
 
-    const promise = new Promise<T[]>((resolve: Function, reject: Function) => {
-      this.client.query(params as QueryInput, function (error: Error, data: any) {
-        if (error != null) {
-          reject(error)
-        } else {
-          resolve(data.Items)
-        }
-      })
-    })
+    const result = await this.client.query(params as QueryCommandInput)
 
-    return await promise
+    return result.Items as T[]
   }
 
   async delete (id: string): Promise<void> {
@@ -82,13 +73,7 @@ export default class DynamoDbAdapter {
       Key: { id }
     }
 
-    const promise = new Promise<void>((resolve: Function, reject: Function) => {
-      this.client.delete(params, function (error) {
-        error === null ? resolve() : reject(error)
-      })
-    })
-
-    return await promise
+    await this.client.delete(params)
   }
 
   async update<T extends Entity>(item: T): Promise<void> {
@@ -116,7 +101,7 @@ export default class DynamoDbAdapter {
     }
 
     const promise = new Promise<void>((resolve: Function, reject: Function) => {
-      this.client.update(params as UpdateItemInput, function (error) {
+      this.client.update(params as UpdateCommandInput, function (error) {
         error === null ? resolve() : reject(error)
       })
     })
