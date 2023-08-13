@@ -32,6 +32,14 @@ export default class FilterBuilder {
       filterExpression = `attribute_not_exists(#${attribute})`
     } else if (operator === FilterExpressionOperator.Equals) {
       filterExpression = `#${attribute} = :${attribute}`
+    } else if (operator === FilterExpressionOperator.LowerThan) {
+      filterExpression = `#${attribute} < :${attribute}`
+    } else if (operator === FilterExpressionOperator.LowerEqualThan) {
+      filterExpression = `#${attribute} <= :${attribute}`
+    } else if (operator === FilterExpressionOperator.BiggerThan) {
+      filterExpression = `#${attribute} > :${attribute}`
+    } else if (operator === FilterExpressionOperator.BiggerEqualThan) {
+      filterExpression = `#${attribute} >= :${attribute}`
     } else {
       throw new Error(`Unsupported filter operator: ${String(operator)}`)
     }

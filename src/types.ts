@@ -18,6 +18,10 @@ export enum FilterExpressionOperator {
   Exists = 'Exists',
   NotExists = 'NotExists',
   Equals = 'Equals',
+  LowerThan = 'LowerThan',
+  LowerEqualThan = 'LowerEqualThan',
+  BiggerThan = 'BiggerThan',
+  BiggerEqualThan = 'BiggerEqualThan'
 }
 
 export interface FilterExpression {

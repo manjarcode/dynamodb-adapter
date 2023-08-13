@@ -28,13 +28,9 @@ const dynamoDbAdapter = DynamoDbAdapterFactory.create(
 )
 const filters = [
   {
-    attribute: 'category',
-    operator: FilterExpressionOperator.Exists
-  },
-  {
-    attribute: 'subcategory',
-    operator: FilterExpressionOperator.Equals,
-    value: 'Supermercado'
+    attribute: 'amount',
+    operator: FilterExpressionOperator.LowerEqualThan,
+    value: -21.8
   }
 ]
 dynamoDbAdapter.scan(filters).then(results => {

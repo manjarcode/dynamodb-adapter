@@ -1,6 +1,12 @@
 import { FilterExpression, FilterExpressionOperator, TableConfig } from '../types.js'
 
-const comparableOperatorList = [FilterExpressionOperator.Equals]
+const comparableOperatorList = [
+  FilterExpressionOperator.Equals,
+  FilterExpressionOperator.BiggerThan,
+  FilterExpressionOperator.BiggerEqualThan,
+  FilterExpressionOperator.LowerThan,
+  FilterExpressionOperator.LowerEqualThan
+]
 
 export default class ExpressionBuilder {
   private readonly tableConfig: TableConfig

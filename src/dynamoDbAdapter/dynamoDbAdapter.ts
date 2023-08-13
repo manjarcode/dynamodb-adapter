@@ -41,6 +41,8 @@ export default class DynamoDbAdapter {
 
   async scan<T>(filters?: FilterExpression[]): Promise<T[]> {
     const params = this.scanParamBuilder.build(filters)
+
+    console.log('params', params)
     const promise = new Promise<T[]>((resolve: Function, reject: Function) => {
       this.client.scan(params as ScanInput, (error: Error, data: any) => {
         if (error != null) {
