@@ -47,6 +47,7 @@ export class ScanParamBuilderFactory {
   ): ScanParamBuilder {
     return new ScanParamBuilder(
       tableconfig,
+      ExpressionBuilderFactory.create(tableconfig),
       FilterBuilderFactory.create()
     )
   }

@@ -103,7 +103,7 @@ describe('DynamoDbAdapter', () => {
       { operator: FilterExpressionOperator.NotExists, attribute: 'missing_attribute' }
     ]
 
-    void dynamoDbAdapter.query('partitionvalue', 'sortvalue', filters as any)
+    void dynamoDbAdapter.query('partitionvalue', 'sortvalue', filters)
 
     const expectedParams = {
       ExpressionAttributeValues: {
@@ -116,6 +116,32 @@ describe('DynamoDbAdapter', () => {
       ExpressionAttributeNames: {
         '#having_attribute': 'having_attribute',
         '#missing_attribute': 'missing_attribute'
+      }
+    }
+    expect(clientMock.query).toBeCalledWith(
+      expectedParams,
+      expect.anything()
+    )
+  })
+
+  test('query with equal filters', async () => {
+    const { dynamoDbAdapter, clientMock } = setup()
+    const filters: FilterExpression[] = [
+      { operator: FilterExpressionOperator.Equals, attribute: 'attribute', value: 'value' }
+    ]
+
+    void dynamoDbAdapter.query('partitionvalue', undefined, filters)
+
+    const expectedParams = {
+      ExpressionAttributeValues: {
+        ':partitionValue': 'partitionvalue',
+        ':attribute': 'value'
+      },
+      KeyConditionExpression: 'partitionkey = :partitionValue',
+      TableName: 'tablename',
+      FilterExpression: '#attribute = :attribute',
+      ExpressionAttributeNames: {
+        '#attribute': 'attribute'
       }
     }
     expect(clientMock.query).toBeCalledWith(

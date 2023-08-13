@@ -17,6 +17,7 @@ export interface TableConfig {
 export enum FilterExpressionOperator {
   Exists = 'Exists',
   NotExists = 'NotExists',
+  Equals = 'Equals',
 }
 
 export interface FilterExpression {
@@ -29,6 +30,7 @@ export interface Queryable {
   TableName: string
   FilterExpression?: string
   ExpressionAttributeNames?: Object
+  ExpressionAttributeValues?: Object
 }
 
 export interface QueryParams extends Queryable {

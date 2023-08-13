@@ -4,6 +4,7 @@ import process from 'process'
 import dotenv from 'dotenv'
 
 import DynamoDbAdapterFactory from '../lib/index.js'
+import {FilterExpressionOperator} from '../lib/types.js'
 
 dotenv.config()
 
@@ -28,7 +29,12 @@ const dynamoDbAdapter = DynamoDbAdapterFactory.create(
 const filters = [
   {
     attribute: 'category',
-    operator: 'Exists'
+    operator: FilterExpressionOperator.Exists
+  },
+  {
+    attribute: 'subcategory',
+    operator: FilterExpressionOperator.Equals,
+    value: 'Supermercado'
   }
 ]
 dynamoDbAdapter.scan(filters).then(results => {

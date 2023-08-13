@@ -41,6 +41,23 @@ describe('FilterBuilder', () => {
     expect(result).toEqual(expectedResult)
   })
 
+  test('apply Equals operator', () => {
+    const filters: FilterExpression[] = [
+      { operator: FilterExpressionOperator.Equals, attribute: 'attribute', value: 'value' }
+    ]
+
+    const result = filterBuilder.apply(emptyParams, filters)
+
+    const expectedResult = {
+      TableName: 'tablename',
+      FilterExpression: '#attribute = :attribute',
+      ExpressionAttributeNames: {
+        '#attribute': 'attribute'
+      }
+    }
+    expect(result).toEqual(expectedResult)
+  })
+
   test('apply with unknown operator', () => {
     const filters: FilterExpression[] = [
       { operator: 'unknown' as FilterExpressionOperator, attribute: 'unknown_attribute' }

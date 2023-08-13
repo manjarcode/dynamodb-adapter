@@ -1,4 +1,6 @@
-import { TableConfig } from '../types.js'
+import { FilterExpression, FilterExpressionOperator, TableConfig } from '../types.js'
+
+const comparableOperatorList = [FilterExpressionOperator.Equals]
 
 export default class ExpressionBuilder {
   private readonly tableConfig: TableConfig
@@ -18,17 +20,37 @@ export default class ExpressionBuilder {
     return result
   }
 
-  expressionAttributeValues (partitionValue: string, sortValue?: string): Object {
+  private isComparableOperator (filter: FilterExpression): boolean {
+    return comparableOperatorList.includes(filter.operator)
+  }
+
+  expressionAttributeValues (partitionValue?: string, sortValue?: string, filters?: FilterExpression[]): Object {
+    const hasPartitionValue = Boolean(partitionValue)
     const hasSortKey = Boolean(this.tableConfig.sortKey)
     const hasSortValue = hasSortKey && Boolean(sortValue)
+    const hasFilters = Array.isArray(filters) && filters.length > 0
 
-    const expressionAttributeValues: Object = {
-      ':partitionValue': partitionValue
+    const expressionAttributeValues: Object = { }
+
+    if (hasPartitionValue) {
+      Object.assign(expressionAttributeValues, {
+        ':partitionValue': partitionValue
+      })
     }
 
     if (hasSortValue) {
       Object.assign(expressionAttributeValues, {
         ':sortValue': sortValue
+      })
+    }
+
+    if (hasFilters) {
+      filters.forEach(item => {
+        if (this.isComparableOperator(item)) {
+          Object.assign(expressionAttributeValues, {
+            [`:${item.attribute}`]: item.value
+          })
+        }
       })
     }
 

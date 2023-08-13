@@ -30,6 +30,8 @@ export default class FilterBuilder {
       filterExpression = `attribute_exists(#${attribute})`
     } else if (operator === FilterExpressionOperator.NotExists) {
       filterExpression = `attribute_not_exists(#${attribute})`
+    } else if (operator === FilterExpressionOperator.Equals) {
+      filterExpression = `#${attribute} = :${attribute}`
     } else {
       throw new Error(`Unsupported filter operator: ${String(operator)}`)
     }

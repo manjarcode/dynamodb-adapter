@@ -22,7 +22,7 @@ export default class QueryParamBuilder {
     const params = {
       TableName: this.tableConfig.tableName,
       KeyConditionExpression: this.expressionBuilder.keyConditionExpression(hasSortValue),
-      ExpressionAttributeValues: this.expressionBuilder.expressionAttributeValues(partitionValue, sortValue)
+      ExpressionAttributeValues: this.expressionBuilder.expressionAttributeValues(partitionValue, sortValue, filters)
     }
 
     const paramWithFilters = this.filterBuilder.apply(params, filters)
