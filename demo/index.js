@@ -18,6 +18,14 @@ const dynamoDbAdapter = DynamoDbAdapterFactory.create(
   sortKey
 )
 
+dynamoDbAdapter.add({
+  reportId: '21c9f232-52d2-4594-8884-5f96473583f4',
+  date: 1682978400000,
+  amount: -16.6,
+  description: 'Pago en GROUCHOS MADRID ES',
+  category: 'Tremendo'
+})
+
 const filters = [
   {
     attribute: 'category',
@@ -40,7 +48,9 @@ const item = {
   date: 1682978400000,
   amount: -16.6,
   description: 'Pago en GROUCHOS MADRID ES',
-  category: 'Tremendo'
+  category: 'Alimentación'
 }
 
 dynamoDbAdapter.update(item)
+
+dynamoDbAdapter.deleteByPartitionKey('21c9f232-52d2-4594-8884-5f96473583f4')

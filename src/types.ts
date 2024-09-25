@@ -45,3 +45,17 @@ export interface UpdateParams {
   ExpressionAttributeValues: Object
   ExpressionAttributeNames?: Object
 }
+
+export interface Item {
+  [key: string]: any
+}
+
+export interface DeleteRequest {
+  Key: {
+    [key: string]: any
+  }
+}
+
+export interface Request {
+  DeleteRequest: DeleteRequest
+}

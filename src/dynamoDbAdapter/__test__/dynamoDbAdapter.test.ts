@@ -2,7 +2,7 @@ import { describe, expect, jest, test } from '@jest/globals'
 
 import { FilterExpression, FilterExpressionOperator, TableConfig } from '../../types.js'
 import DynamoDbAdapter from '../dynamoDbAdapter.js'
-import { QueryParamBuilderFactory, ScanParamBuilderFactory } from '../factory.js'
+import { DeleteByPartitionKeyFactory, QueryParamBuilderFactory, ScanParamBuilderFactory } from '../factory.js'
 
 interface ClientMock {
   scan: jest.Mock
@@ -24,7 +24,8 @@ describe('DynamoDbAdapter', () => {
 
     const scanParamBuilder = ScanParamBuilderFactory.create(tableConfig)
     const queryBuilder = QueryParamBuilderFactory.create(tableConfig)
-    const dynamoDbAdapter = new DynamoDbAdapter(tableConfig, clientMock as any, scanParamBuilder, queryBuilder)
+    const deleteByPartionKey = DeleteByPartitionKeyFactory.create(tableConfig)
+    const dynamoDbAdapter = new DynamoDbAdapter(tableConfig, clientMock as any, scanParamBuilder, queryBuilder, deleteByPartionKey)
 
     return { dynamoDbAdapter, clientMock }
   }

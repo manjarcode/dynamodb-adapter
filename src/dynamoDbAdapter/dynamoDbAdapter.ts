@@ -2,6 +2,7 @@ import { DynamoDBDocument, QueryCommandInput, ScanCommandInput, UpdateCommandInp
 
 import { Entity, FilterExpression, TableConfig, UpdateParams } from '../types.js'
 import { reservedKeywords } from '../utils/constants.js'
+import DeleteByPartitionKey from './deleteByPartitionKey.js'
 import QueryParamBuilder from './queryParamBuilder.js'
 import ScanParamBuilder from './scanParamBuilder.js'
 
@@ -10,16 +11,19 @@ export default class DynamoDbAdapter {
   private readonly tableConfig: TableConfig
   private readonly scanParamBuilder: ScanParamBuilder
   private readonly queryParamBuilder: QueryParamBuilder
+  private readonly deleteByPartitionKeyAdapter: DeleteByPartitionKey
 
   constructor (tableConfig: TableConfig,
     documentClient: DynamoDBDocument,
     scanParamBuilder: ScanParamBuilder,
-    queryBuilder: QueryParamBuilder
+    queryBuilder: QueryParamBuilder,
+    deleteByPartionKey: DeleteByPartitionKey
   ) {
     this.tableConfig = tableConfig
     this.client = documentClient
     this.queryParamBuilder = queryBuilder
     this.scanParamBuilder = scanParamBuilder
+    this.deleteByPartitionKeyAdapter = deleteByPartionKey
   }
 
   async add<T extends Object>(item: T): Promise<void> {
@@ -74,6 +78,10 @@ export default class DynamoDbAdapter {
     }
 
     await this.client.delete(params)
+  }
+
+  async deleteByPartitionKey (partitionKeyValue: string): Promise<void> {
+    await this.deleteByPartitionKeyAdapter.execute(partitionKeyValue)
   }
 
   async update<T extends Entity>(item: T): Promise<void> {

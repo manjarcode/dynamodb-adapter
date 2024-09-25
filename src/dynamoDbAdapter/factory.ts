@@ -2,6 +2,7 @@
 import DocumentClientFactory from '../documentClient/factory.js'
 import { TableConfig } from '../types.js'
 import FilterBuilder from './filterBuilder/filterBuilder.js'
+import DeleteByPartitionKey from './deleteByPartitionKey.js'
 import DynamoDbAdapter from './dynamoDbAdapter.js'
 import ExpressionBuilder from './expressionBuilder.js'
 import QueryParamBuilder from './queryParamBuilder.js'
@@ -19,7 +20,8 @@ export default class DynamoDbAdapterFactory {
       tableConfig,
       DocumentClientFactory.create(),
       ScanParamBuilderFactory.create(tableConfig),
-      QueryParamBuilderFactory.create(tableConfig)
+      QueryParamBuilderFactory.create(tableConfig),
+      DeleteByPartitionKeyFactory.create(tableConfig)
     )
 
     return dynamoDbAdapter
@@ -59,6 +61,17 @@ export class QueryParamBuilderFactory {
       tableConfig,
       ExpressionBuilderFactory.create(tableConfig),
       FilterBuilderFactory.create()
+    )
+  }
+}
+
+export class DeleteByPartitionKeyFactory {
+  static create (
+    tableconfig: TableConfig
+  ): DeleteByPartitionKey {
+    return new DeleteByPartitionKey(
+      DocumentClientFactory.createDocumentClient(), tableconfig,
+      QueryParamBuilderFactory.create(tableconfig)
     )
   }
 }

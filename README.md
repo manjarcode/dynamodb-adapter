@@ -114,3 +114,14 @@ dynamoDbAdapter.delete(itemId).then(() => {
   console.log('deleted successfully')
 }
 ```
+
+# Delete by partition key
+You can use the deleteByPartitionKey method to delete every item with the same partition key. In order to do it your table must have a sort key. Otherwise you will need to use the delete method.
+
+```javascript
+
+dynamoDbAdapter.deleteByPartitionKey(partitionKey).then(() => {
+  console.log('deleted successfully')
+}
+```
+
