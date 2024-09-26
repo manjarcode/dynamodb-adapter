@@ -14,7 +14,8 @@ export default class DynamoDbAdapterFactory {
     partitionKey: string,
     sortKey: string
   ): DynamoDbAdapter {
-    const tableConfig: TableConfig = { tableName, partitionKey, sortKey }
+    const hasSortKey = sortKey !== undefined && sortKey !== null && sortKey !== ''
+    const tableConfig: TableConfig = { tableName, partitionKey, hasSortKey, sortKey }
 
     const dynamoDbAdapter = new DynamoDbAdapter(
       tableConfig,

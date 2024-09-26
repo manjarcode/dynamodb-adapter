@@ -5,7 +5,8 @@ export interface Entity {
 export interface TableConfig {
   tableName: string
   partitionKey: string
-  sortKey?: string
+  hasSortKey: boolean
+  sortKey: string
 }
 
 export enum FilterExpressionOperator {

@@ -12,6 +12,9 @@ export default class DynamoDbAdapter {
   private readonly scanParamBuilder: ScanParamBuilder
   private readonly queryParamBuilder: QueryParamBuilder
   private readonly deleteByPartitionKeyAdapter: DeleteByPartitionKey
+  private readonly hasSortKey: boolean
+  private readonly partitionKey: string
+  private readonly sortKey: string
 
   constructor (tableConfig: TableConfig,
     documentClient: DynamoDBDocument,
@@ -24,6 +27,11 @@ export default class DynamoDbAdapter {
     this.queryParamBuilder = queryBuilder
     this.scanParamBuilder = scanParamBuilder
     this.deleteByPartitionKeyAdapter = deleteByPartionKey
+
+    this.hasSortKey = this.tableConfig.sortKey !== undefined && this.tableConfig.sortKey !== null && this.tableConfig.sortKey !== ''
+    this.partitionKey = this.tableConfig.partitionKey
+
+    this.sortKey = this.hasSortKey ? this.tableConfig.sortKey : ''
   }
 
   async add<T extends Object>(item: T): Promise<void> {
@@ -71,10 +79,18 @@ export default class DynamoDbAdapter {
     return result.Items as T[]
   }
 
-  async delete (id: string): Promise<void> {
+  async delete (partitionKey: string, sortKey?: string): Promise<void> {
+    const key = {
+      [this.tableConfig.partitionKey]: partitionKey
+    }
+
+    if (this.hasSortKey) {
+      key[this.tableConfig.sortKey] = String(sortKey)
+    }
+
     const params = {
       TableName: this.tableConfig.tableName,
-      Key: { id }
+      Key: key
     }
 
     await this.client.delete(params)

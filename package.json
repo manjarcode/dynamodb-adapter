@@ -1,13 +1,13 @@
 {
   "name": "dynamodb-adapter",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Adapter to access DynamoDB tables",
   "main": "lib/index.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
     "demo": "node ./demo/index.js",
-    "test": "jest",
+    "test": "jest --verbose",
     "test:watch": "jest --watch",
     "lint": "sui-lint js"
   },
