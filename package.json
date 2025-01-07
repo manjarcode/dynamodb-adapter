@@ -1,6 +1,6 @@
 {
   "name": "dynamodb-adapter",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Adapter to access DynamoDB tables",
   "main": "lib/index.js",
   "type": "module",
