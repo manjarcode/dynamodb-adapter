@@ -84,8 +84,8 @@ export default class DynamoDbAdapter {
       [this.tableConfig.partitionKey]: partitionKey
     }
 
-    if (this.hasSortKey) {
-      key[this.tableConfig.sortKey] = String(sortKey)
+    if (this.hasSortKey && sortKey !== undefined) {
+      key[this.tableConfig.sortKey] = sortKey
     }
 
     const params = {

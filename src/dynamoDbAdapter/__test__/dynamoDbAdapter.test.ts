@@ -19,6 +19,7 @@ describe('DynamoDbAdapter', () => {
     const tableConfig: TableConfig = {
       tableName: 'tablename',
       partitionKey: 'partitionkey',
+      hasSortKey: true,
       sortKey: 'sortkey'
     }
 

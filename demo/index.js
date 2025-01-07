@@ -53,4 +53,6 @@ const item = {
 
 dynamoDbAdapter.update(item)
 
+dynamoDbAdapter.delete('21c9f232-52d2-4594-8884-5f96473583f4', 1682978400000)
+
 dynamoDbAdapter.deleteByPartitionKey('21c9f232-52d2-4594-8884-5f96473583f4')
